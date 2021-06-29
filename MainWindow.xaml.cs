@@ -90,13 +90,10 @@ namespace PingTest
                 string data = "This_Ping_Test_Program.";
                 byte[] buffer = ASCIIEncoding.ASCII.GetBytes(data);
                 int timeout = 120;
-
-                //IP 주소를 입력
-                DateTime prev = DateTime.Now;
-                //PingReply reply = ping.Send(IPAddress.Parse("127.0.0.1"), timeout, buffer, options);
+                
                 PingReply reply = ping.Send(IPAddress.Parse(resource.IPAdd), timeout, buffer, options);
-                DateTime curr = DateTime.Now;
-                WriteLog($"{reply.Status.ToString()}, {(curr - prev).Milliseconds} ms");
+                
+                WriteLog($"{reply.Status.ToString()}, {reply.RoundtripTime} ms");
             }
             catch (Exception ex)
             {
