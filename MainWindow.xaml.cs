@@ -45,22 +45,27 @@ namespace PingTest
         LogClass mc_Log = new LogClass();
         Queue<string> m_queMsg = new Queue<string>();
         DataResource resource = new DataResource();
+        Ping ping = new Ping();
+        PingOptions options = new PingOptions();
+        PingReply reply;
         public MainWindow()
         {
             InitializeComponent();
-            m_thPing = new Thread(new ThreadStart(Th_Ping));
-            m_thPing.Start();
-            if(!XmlManager.LoadXml("PingTest.xml", resource))
+            if (!XmlManager.LoadXml("PingTest.xml", resource))
             {
                 XmlManager.SaveXml("PingTest.xml", resource);
             }
+            options.DontFragment = true;
+            m_thPing = new Thread(new ThreadStart(Th_Ping));
+            m_thPing.Start();
             WriteLog($"Program Start. IP : {resource.IPAdd}, Ping Delay : {resource.PingDelay}");
         }
 
         public void WriteLog(string strMsg)
         {
             strMsg = strMsg.Insert(0, $"[{DateTime.Now:yyyy.MM.dd_HH:mm:ss}] ");
-            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate () {
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
                 listMessage.Items.Add(strMsg);
                 if (listMessage.Items.Count > 500)
                     listMessage.Items.RemoveAt(0);
@@ -71,7 +76,7 @@ namespace PingTest
 
         private void Th_Ping()
         {
-            while(true)
+            while (true)
             {
                 Thread.Sleep(resource.PingDelay);
                 fn_PingTest();
@@ -82,31 +87,17 @@ namespace PingTest
         {
             try
             {
-                Ping ping = new Ping();
-                PingOptions options = new PingOptions();
-                options.DontFragment = true;
-
                 //전송할 데이터를 입력
-                string data = "This_Ping_Test_Program.";
-                byte[] buffer = ASCIIEncoding.ASCII.GetBytes(data);
-                int timeout = 120;
-                
-                PingReply reply = ping.Send(IPAddress.Parse(resource.IPAdd), timeout, buffer, options);
-                
+                byte[] buffer = ASCIIEncoding.ASCII.GetBytes("This_Ping_Test_Program.");
+
+                reply = ping.Send(IPAddress.Parse(resource.IPAdd), (int)(resource.PingDelay / 2.0), buffer, options);
+
                 WriteLog($"{reply.Status.ToString()}, {reply.RoundtripTime} ms");
             }
             catch (Exception ex)
             {
                 WriteLog(ex.Message);
             }
-            finally
-            {
-            }
-        }
-
-        private void bn_test_click(object sender, RoutedEventArgs e)
-        {
-            fn_PingTest();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
