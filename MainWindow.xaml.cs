@@ -102,6 +102,8 @@ namespace PingTest
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            WriteLog("Program End.");
+            Thread.Sleep(20);
             mc_Log.Destroy();
             if (m_thPing.IsAlive)
                 m_thPing.Abort();
